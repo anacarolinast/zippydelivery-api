@@ -1,0 +1,26 @@
+# POSTGRESQL
+version: "3.10"
+services:
+  db:
+    image: postgres:9.6
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: zippydelivery
+      POSTGRES_DB: zippydelivery
+    ports:
+      - 5435:5432
+    volumes:
+      - ./postgres-data:/bitnami/postgresql/data
+
+
+# MYSQL
+#version: '3'
+#services:
+#  mysql:
+#    image: mysql:latest
+#    container_name: zippydelivery
+#    environment:
+#      MYSQL_ROOT_PASSWORD: 12345678
+#      MYSQL_DATABASE: zippydelivery
+#    ports:
+#      - "5435:3306"#
