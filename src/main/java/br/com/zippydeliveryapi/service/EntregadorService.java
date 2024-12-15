@@ -44,7 +44,7 @@ public class EntregadorService {
     public Entregador save(Entregador entregador) {
         this.usuarioService.save(entregador.getUsuario());
         entregador.setHabilitado(Boolean.TRUE);
-        entregador.setStatus(StatusEnum.PENDENTE);
+        entregador.setStatus(StatusEnum.PENDENTE.getCodigo());
         return this.repository.save(entregador);
     }
 
@@ -64,7 +64,7 @@ public class EntregadorService {
     @Transactional
     public void updateStatus(Long id, StatusEnum novoStatus) {
         Entregador entregador = this.findById(id);
-        entregador.setStatus(novoStatus);
+        entregador.setStatus(novoStatus.getCodigo());
         this.repository.save(entregador);
     }
 

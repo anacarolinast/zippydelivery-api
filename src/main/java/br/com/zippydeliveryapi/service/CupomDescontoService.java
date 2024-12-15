@@ -32,7 +32,7 @@ public class CupomDescontoService {
     public CupomDesconto save(CupomDescontoRequest request) {
         Optional<CupomDesconto> cupom = this.repository.findByCodigo(request.getCodigo());
         if(cupom.isPresent()){
-            throw new ProdutoException("Já existe um cupom de desconto ativo com esse código");
+            throw new CupomDescontoException("Já existe um cupom de desconto ativo com esse código");
         }
         CupomDesconto cupomDesconto = CupomDesconto.fromRequest(request);
         this.validateDateRange(cupomDesconto);
@@ -90,23 +90,18 @@ public class CupomDescontoService {
         return (date.isEqual(inicio) || date.isAfter(inicio)) && (date.isEqual(fim) || date.isBefore(fim));
     }
 
-    private void aplicarDescontoNoPedido(Pedido pedido, Double desconto) {
-        Double valorTotalComDesconto = pedido.getValorTotal() - desconto;
-        pedido.setValorTotal(valorTotalComDesconto);
-    }
-
-    public void aplicarCupom(Pedido pedido, CupomDesconto cupom) {
+    public Double aplicarCupom(Double valorTotal, CupomDesconto cupom) {
         Double desconto = 0.0;
 
         if (cupom.getPercentualDesconto() != null && cupom.getPercentualDesconto() != 0.0) {
-            desconto = pedido.getValorTotal() * (cupom.getPercentualDesconto() / 100);
+            desconto = valorTotal * (cupom.getPercentualDesconto() / 100);
         } else if (cupom.getValorDesconto() != null && cupom.getValorDesconto() != 0.0) {
             desconto = cupom.getValorDesconto();
         }
 
-        this.aplicarDescontoNoPedido(pedido, desconto);
         cupom.setQuantidadeMaximaUso(cupom.getQuantidadeMaximaUso() - 1);
         this.update(cupom.getId(), CupomDescontoRequest.fromEntity(cupom));
+        return valorTotal - desconto;
     }
 
 }

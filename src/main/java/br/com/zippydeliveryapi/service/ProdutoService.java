@@ -48,7 +48,7 @@ public class ProdutoService {
 
         Empresa empresa = this.empresaRepository.findByIdAndHabilitadoTrue(request.getEmpresaId());
         if (empresa == null) {
-            throw new ProdutoException("Empresa não encontrada ou inativa");
+            throw new EntidadeNaoEncontradaException("Empresa", request.getEmpresaId());
         }
 
         Produto produto = Produto.fromRequest(request);

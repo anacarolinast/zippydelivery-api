@@ -1,10 +1,14 @@
 package br.com.zippydeliveryapi.model.dto.request;
 
+import java.util.ArrayList;
 import java.util.List;
-import br.com.zippydeliveryapi.model.Cliente;
-import br.com.zippydeliveryapi.model.Usuario;
+import java.util.stream.Collectors;
+
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CPF;
+
+import br.com.zippydeliveryapi.model.Cliente;
+import br.com.zippydeliveryapi.model.Endereco;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -33,7 +37,7 @@ public class ClienteRequest {
    @NotBlank(message = "A senha é de preenchimento obrigatório")
    private String senha;
 
-    private String[] enderecos;
+   private List<Long> enderecosID;
 
    public Cliente build() {
       return Cliente.builder()
@@ -44,12 +48,21 @@ public class ClienteRequest {
               .build();
    }
 
-  public Usuario buildUsuario() {
-	
-	return Usuario.builder()
-		.username(email)
-		.password(senha)
-		.roles(List.of(Usuario.ROLE_CLIENTE))
-		.build();
+    public static ClienteRequest fromEntity(Cliente cliente) {
+        ClienteRequest request = new ClienteRequest();
+        request.setNome(cliente.getNome());
+        request.setCpf(cliente.getCpf());
+        request.setEmail(cliente.getEmail());
+        request.setSenha(cliente.getSenha());
+
+        if (cliente.getEnderecos() != null) {
+            List<Long> enderecosIds = cliente.getEnderecos().stream()
+                    .map(Endereco::getId)
+                    .collect(Collectors.toList());
+            request.setEnderecosID(enderecosIds);
+        } else {
+            request.setEnderecosID(new ArrayList<>());
+        }
+        return request;
     }
 }

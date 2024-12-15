@@ -13,8 +13,6 @@ public class ItensPedidoRequest {
 
     private Long produtoId;
 
-    private Long pedidoId;
-
     private Integer qtdProduto;
 
     private Double valorUnitario;

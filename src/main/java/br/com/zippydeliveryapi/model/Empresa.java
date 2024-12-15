@@ -1,14 +1,27 @@
 package br.com.zippydeliveryapi.model;
 
+import java.util.Set;
+
 import br.com.zippydeliveryapi.model.dto.request.EmpresaRequest;
 import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
 import br.com.zippydeliveryapi.util.enums.FormaPagamentoEnum;
 import br.com.zippydeliveryapi.util.enums.StatusEnum;
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import lombok.*;
-import org.hibernate.validator.constraints.br.CNPJ;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Empresa")

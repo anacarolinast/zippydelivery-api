@@ -1,13 +1,17 @@
 package br.com.zippydeliveryapi.util.enums;
 
 public enum StatusEnum {
-
+    //Empresa
     ATIVO(1, "Ativo"),
     INATIVO(0, "Inativo"),
     PENDENTE(2, "Pendente"),
     AGUARDANDO_APROVACAO(3, "Aguardando Aprovação"),
+
+    //Pedido
     CANCELADO(5, "Cancelado"),
-    ESTORNADO(4, "Estornado");
+    ESTORNADO(4, "Estornado"),
+    EM_PROCESSAMENTO(6, "Em Processamento"),
+    CONFIRMADO(7, "Confirmado");
 
     private final int codigo;
     private final String descricao;

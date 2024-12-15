@@ -1,13 +1,26 @@
 package br.com.zippydeliveryapi.model;
 
-import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
-import br.com.zippydeliveryapi.util.enums.StatusEnum;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import br.com.zippydeliveryapi.model.dto.request.PedidoRequest;
+import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
+import br.com.zippydeliveryapi.util.enums.StatusEnum;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Pedido")
@@ -36,16 +49,24 @@ public class Pedido extends EntidadeNegocio {
 
     private LocalDateTime dataHora;
 
-    private String formaPagamento;
+    private int formaPagamento;
 
-    private StatusEnum statusPedido;
+    private int statusPedido;
 
-    private StatusEnum statusPagamento;
+    private int statusPagamento;
 
     private Double valorTotal;
 
     private Double taxaEntrega;
 
     private Endereco enderecoEntrega;
+
+    public static Pedido fromRequest(PedidoRequest request) {
+        return Pedido.builder()
+                .formaPagamento(request.getFormaPagamento().getCodigo())
+                .statusPedido(request.getStatusPedido().getCodigo())
+                .statusPagamento(StatusEnum.PENDENTE.getCodigo())
+                .build();
+    }
 
 }

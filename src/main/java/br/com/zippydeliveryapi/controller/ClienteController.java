@@ -2,7 +2,9 @@ package br.com.zippydeliveryapi.controller;
 
 import java.util.List;
 import br.com.zippydeliveryapi.model.Cliente;
+import br.com.zippydeliveryapi.model.Endereco;
 import br.com.zippydeliveryapi.model.dto.request.ClienteRequest;
+import br.com.zippydeliveryapi.model.dto.request.EnderecoRequest;
 import br.com.zippydeliveryapi.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,4 +64,13 @@ public class ClienteController {
         return this.clienteService.findByUsuarioId(id);
     }
 
+    @PostMapping("{clienteId}/endereco")
+    public ResponseEntity<Endereco> saveNewAddress(@PathVariable("clienteId") Long id, @RequestBody @Valid EnderecoRequest request) {
+        return new ResponseEntity<>(this.clienteService.saveNewAddress(id, request), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{clienteId}/endereco")
+    public List<Endereco> findAllAddress(@PathVariable("clienteId") Long id) {
+        return this.clienteService.findAllAddress(id);
+    }
 }

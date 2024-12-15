@@ -4,19 +4,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
+import br.com.zippydeliveryapi.model.*;
+import br.com.zippydeliveryapi.model.dto.request.ItensPedidoRequest;
+import br.com.zippydeliveryapi.model.dto.request.PedidoRequest;
+import br.com.zippydeliveryapi.model.dto.request.PedidoUpdateRequest;
+import br.com.zippydeliveryapi.repository.*;
+import br.com.zippydeliveryapi.util.exception.ProdutoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import br.com.zippydeliveryapi.model.ItensPedido;
-import br.com.zippydeliveryapi.model.Pedido;
 import br.com.zippydeliveryapi.model.dto.response.DashBoardResponse;
-import br.com.zippydeliveryapi.repository.ItensPedidoRepository;
-import br.com.zippydeliveryapi.repository.PedidoRepository;
 import br.com.zippydeliveryapi.util.enums.StatusEnum;
 import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import jakarta.transaction.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class PedidoService {
@@ -25,58 +25,90 @@ public class PedidoService {
     private final PedidoRepository repository;
 
     @Autowired
-    private final ItensPedidoRepository itensPedidoRepository;
-
-    @Autowired
     private final CupomDescontoService cupomDescontoService;
 
-    public PedidoService(PedidoRepository repository, ItensPedidoRepository itensPedidoRepository, CupomDescontoService cupomDescontoService) {
+    @Autowired
+    private final EmpresaRepository empresaRepository;
+
+    @Autowired
+    private final ClienteRepository clienteRepository;
+
+    @Autowired
+    private final EnderecoRepository enderecoRepository;
+
+    @Autowired
+    private final ProdutoRepository produtoRepository;
+
+    public PedidoService(PedidoRepository repository, CupomDescontoService cupomDescontoService, EmpresaRepository empresaRepository, ClienteRepository clienteRepository, EnderecoRepository enderecoRepository, ProdutoRepository produtoRepository) {
         this.repository = repository;
-        this.itensPedidoRepository = itensPedidoRepository;
         this.cupomDescontoService = cupomDescontoService;
+        this.empresaRepository = empresaRepository;
+        this.clienteRepository = clienteRepository;
+        this.enderecoRepository = enderecoRepository;
+        this.produtoRepository = produtoRepository;
     }
 
-    private List<ItensPedido> criaListaPedidos(Pedido pedido) {
-        return new ArrayList<>(pedido.getItensPedido());
-    }
-
-    // Somar a taxa
-    private Double calcularValorTotalPedido(List<ItensPedido> itensPedidos) {
-        return itensPedidos.stream()
-                .mapToDouble(ItensPedido::getValorTotal)
-                .sum();
-    }
-
-    private Pedido salvarPedido(Pedido pedido, List<ItensPedido> itens) {
-        pedido.setItensPedido(null);
-        pedido.setDataHora(LocalDateTime.now());
-        pedido.setStatusPagamento(StatusEnum.PENDENTE);
-        pedido.setValorTotal(calcularValorTotalPedido(itens));
-        pedido.setHabilitado(Boolean.TRUE);
-
-        Pedido pedidoSalvo = this.repository.saveAndFlush(pedido);
-
-        itens.forEach(item -> {
-            item.setPedido(pedidoSalvo);
-            item.setHabilitado(Boolean.TRUE);
-            this.itensPedidoRepository.saveAndFlush(item);
-        });
-
-        pedidoSalvo.setItensPedido(itens);
-
-        return pedidoSalvo;
-    }
 
     @Transactional
-    public Pedido save(Pedido novoPedido) {
-        List<ItensPedido> itens = criaListaPedidos(novoPedido);
-        Pedido pedidoSalvo = salvarPedido(novoPedido, itens);
+    public Pedido save(PedidoRequest request) {
+        if(request.getItens().isEmpty()) throw new ProdutoException(ProdutoException.MESSAGE_DISPONIBILIDADE_PRODUTO);
 
-        Optional.ofNullable(novoPedido.getCupomDesconto())
-                .filter(this.cupomDescontoService::validarCupom)
-                .ifPresent(cupomDesconto -> this.cupomDescontoService.aplicarCupom(pedidoSalvo, cupomDesconto));
+        Cliente cliente = this.clienteRepository.findByIdAndHabilitadoTrue(request.getClienteId());
+        if (cliente == null) throw new EntidadeNaoEncontradaException("Cliente", request.getClienteId());
 
-        return pedidoSalvo;
+        Empresa empresa = this.empresaRepository.findByIdAndHabilitadoTrue(request.getEmpresaId());
+        if (empresa == null) throw new EntidadeNaoEncontradaException("Empresa", request.getEmpresaId());
+
+        CupomDesconto cupomDesconto = null;
+        if (StringUtils.hasText(request.getCodigoCupom())) {
+            cupomDesconto = this.cupomDescontoService.findByCodigo(request.getCodigoCupom());
+        }
+
+        Endereco endereco = this.enderecoRepository.findById(request.getEnderecoEntregaId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Endereco de Entrega", request.getEnderecoEntregaId()));
+
+        List<ItensPedido> listaItens = this.criaListaPedidos(request.getItens());
+        Double valorTotalPedido = this.calcularValorTotalPedido(listaItens, cupomDesconto);
+
+        Pedido pedido = Pedido.fromRequest(request);
+        pedido.setCliente(cliente);
+        pedido.setEmpresa(empresa);
+        pedido.setCupomDesconto(cupomDesconto);
+        pedido.setEnderecoEntrega(endereco);
+        pedido.setTaxaEntrega(empresa.getTaxaFrete());
+        pedido.setItensPedido(listaItens);
+        pedido.setValorTotal(valorTotalPedido);
+        pedido.setHabilitado(Boolean.TRUE);
+        pedido.setDataHora(LocalDateTime.now());
+
+        return this.repository.save(pedido);
+    }
+
+    private List<ItensPedido> criaListaPedidos(List<ItensPedidoRequest> itens) {
+        return itens.stream()
+                .map(this::converteParaItensPedido)
+                .toList();
+    }
+
+    private ItensPedido converteParaItensPedido(ItensPedidoRequest request) {
+        Produto produto = this.produtoRepository.findById(request.getProdutoId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Produto", request.getProdutoId()));
+        return ItensPedido.builder()
+                .produto(produto)
+                .qtdProduto(request.getQtdProduto())
+                .valorUnitario(request.getValorUnitario())
+                .valorTotal(request.getValorUnitario() * request.getQtdProduto())
+                .build();
+    }
+
+    private Double calcularValorTotalPedido(List<ItensPedido> itensPedidos, CupomDesconto cupomDesconto) {
+        Double totalItens = itensPedidos.stream()
+                .mapToDouble(ItensPedido::getValorTotal)
+                .sum();
+        if(cupomDesconto != null && this.cupomDescontoService.validarCupom(cupomDesconto)){
+            return this.cupomDescontoService.aplicarCupom(totalItens, cupomDesconto);
+        }
+        return totalItens;
     }
 
     public List<Pedido> findAll() {
@@ -88,19 +120,24 @@ public class PedidoService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Pedido", id));
     }
 
-    public List<Pedido> findByEmpresaId(Long id) {
-        return this.repository.findByEmpresaId(id);
+    public List<Pedido> findByEmpresaId(Long empresaId) {
+        return this.repository.findByEmpresaId(empresaId);
     }
 
-    public List<Pedido> findByClienteId(Long id) {
-        return this.repository.findByClienteId(id);
+    public List<Pedido> findByClienteId(Long clienteId) {
+        return this.repository.findByClienteId(clienteId);
     }
 
     @Transactional
-    public void update(Long id, StatusEnum statusPagamento, StatusEnum statusPedido) {
+    public void update(Long id, PedidoUpdateRequest request) {
         Pedido pedido = this.findById(id);
-        pedido.setStatusPedido(statusPedido);
-        pedido.setStatusPagamento(statusPagamento);
+        Endereco enderecoEntrega = this.enderecoRepository.findById(request.getEnderecoEntregaId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Endereco", id));
+
+        pedido.setFormaPagamento(request.getFormaPagamento().getCodigo());
+        pedido.setStatusPedido(request.getStatusPedido().getCodigo());
+        pedido.setStatusPagamento(request.getStatusPagamento().getCodigo());
+        pedido.setEnderecoEntrega(enderecoEntrega);
         this.repository.save(pedido);
     }
 
@@ -108,8 +145,8 @@ public class PedidoService {
     public void delete(Long id) {
         Pedido pedido = this.findById(id);
         pedido.setHabilitado(Boolean.FALSE);
-        pedido.setStatusPedido(StatusEnum.CANCELADO);
-        pedido.setStatusPagamento(StatusEnum.ESTORNADO);
+        pedido.setStatusPedido(StatusEnum.CANCELADO.getCodigo());
+        pedido.setStatusPagamento(StatusEnum.ESTORNADO.getCodigo());
         this.repository.save(pedido);
     }
 
@@ -224,9 +261,5 @@ public class PedidoService {
             }
         }
         return responses;
-    }
-
-    public List<Pedido> filtrarPedidosPorCliente(Long idCliente) {
-        return this.findByClienteId(idCliente);
     }
 }

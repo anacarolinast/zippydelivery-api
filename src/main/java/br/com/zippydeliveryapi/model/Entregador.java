@@ -1,12 +1,19 @@
 package br.com.zippydeliveryapi.model;
 
-import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
-import br.com.zippydeliveryapi.util.enums.StatusEnum;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
+
+import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Entregador")
@@ -41,6 +48,6 @@ public class Entregador extends EntidadeNegocio {
 
     private String telefone;
 
-    private StatusEnum status;
+    private int status;
 
 }

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import br.com.zippydeliveryapi.model.Endereco;
+import br.com.zippydeliveryapi.model.dto.request.EnderecoRequest;
+import br.com.zippydeliveryapi.repository.EnderecoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,9 +26,12 @@ public class ClienteService {
     @Autowired
     private final UsuarioService usuarioService;
 
-    public ClienteService(ClienteRepository repository, UsuarioService usuarioService) {
+    private final EnderecoRepository enderecoRepository;
+
+    public ClienteService(ClienteRepository repository, UsuarioService usuarioService, EnderecoRepository enderecoRepository) {
         this.repository = repository;
         this.usuarioService = usuarioService;
+        this.enderecoRepository = enderecoRepository;
     }
 
     // TODO endpoint para atualizar endereços
@@ -98,5 +104,73 @@ public class ClienteService {
             cliente.getUsuario().setHabilitado(Boolean.FALSE);
             this.repository.save(cliente);
         }
+    }
+
+    @Transactional
+    public Endereco saveNewAddress(Long id, EnderecoRequest request) {
+        Endereco endereco = Endereco.fromRequest(request);
+        Cliente cliente = this.findById(id);
+
+        List<Endereco> listaEnderecos = cliente.getEnderecos();
+        endereco.setHabilitado(Boolean.TRUE);
+        listaEnderecos.add(endereco);
+
+        cliente.setEnderecos(listaEnderecos);
+        this.update(cliente.getId(), ClienteRequest.fromEntity(cliente));
+        return this.enderecoRepository.save(endereco);
+    }
+
+    public List<Endereco> findAllAddress(Long id) {
+        Cliente cliente = this.findById(id);
+        return cliente.getEnderecos();
+    }
+
+    public Endereco findAddressById(Long addressId) {
+        return this.enderecoRepository.findById(addressId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Endereço", addressId));
+    }
+
+    @Transactional
+    public void deleteAddress(Long id, Long enderecoId) {
+        Cliente cliente = this.findById(id);
+        Endereco endereco = this.findAddressById(enderecoId);
+
+        endereco.setHabilitado(Boolean.FALSE);
+        this.enderecoRepository.save(endereco);
+        for (Endereco e : cliente.getEnderecos()) {
+            if (e.getId().equals(enderecoId)) {
+                e.setHabilitado(Boolean.FALSE);
+                break;
+            }
+        }
+        this.repository.save(cliente);
+    }
+
+    @Transactional
+    public void updateAddress(Long id, Long enderecoId, EnderecoRequest request) {
+        Cliente cliente = this.findById(id);
+        Endereco endereco = this.findAddressById(enderecoId);
+        endereco.setLogradouro(request.getLogradouro());
+        endereco.setNumero(request.getNumero());
+        endereco.setBairro(request.getBairro());
+        endereco.setCidade(request.getCidade());
+        endereco.setEstado(request.getEstado());
+        endereco.setCep(request.getCep());
+        endereco.setComplemento(request.getComplemento());
+        this.enderecoRepository.save(endereco);
+
+        for (Endereco e : cliente.getEnderecos()) {
+            if (e.getId().equals(enderecoId)) {
+                e.setLogradouro(request.getLogradouro());
+                e.setNumero(request.getNumero());
+                e.setBairro(request.getBairro());
+                e.setCidade(request.getCidade());
+                e.setEstado(request.getEstado());
+                e.setCep(request.getCep());
+                e.setComplemento(request.getComplemento());
+                break;
+            }
+        }
+        this.repository.save(cliente);
     }
 }

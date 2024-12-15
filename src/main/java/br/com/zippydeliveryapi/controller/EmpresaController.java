@@ -1,15 +1,10 @@
 package br.com.zippydeliveryapi.controller;
 
-import java.util.Arrays;
 import java.util.List;
-import br.com.zippydeliveryapi.model.CategoriaEmpresa;
 import br.com.zippydeliveryapi.model.Empresa;
-import br.com.zippydeliveryapi.model.Usuario;
 import br.com.zippydeliveryapi.model.dto.request.EmpresaRequest;
 import br.com.zippydeliveryapi.model.dto.request.EmpresaStatusRequest;
-import br.com.zippydeliveryapi.service.CategoriaEmpresaService;
 import br.com.zippydeliveryapi.service.EmpresaService;
-import br.com.zippydeliveryapi.util.enums.StatusEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
