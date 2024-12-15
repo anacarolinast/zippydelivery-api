@@ -38,7 +38,6 @@ public class Cliente extends EntidadeNegocio {
                 .nome(request.getNome())
                 .cpf(request.getCpf())
                 .email(request.getEmail())
-                .senha(request.getSenha())
                 .build();
     }
 }
