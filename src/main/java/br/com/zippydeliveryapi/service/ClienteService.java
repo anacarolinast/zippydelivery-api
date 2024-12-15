@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import br.com.zippydeliveryapi.model.Endereco;
+import br.com.zippydeliveryapi.model.Pedido;
 import br.com.zippydeliveryapi.model.dto.request.EnderecoRequest;
 import br.com.zippydeliveryapi.repository.EnderecoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import br.com.zippydeliveryapi.model.Cliente;
@@ -26,11 +29,16 @@ public class ClienteService {
     @Autowired
     private final UsuarioService usuarioService;
 
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
     private final EnderecoRepository enderecoRepository;
 
-    public ClienteService(ClienteRepository repository, UsuarioService usuarioService, EnderecoRepository enderecoRepository) {
+    public ClienteService(ClienteRepository repository, UsuarioService usuarioService, PasswordEncoder passwordEncoder, EnderecoRepository enderecoRepository) {
         this.repository = repository;
         this.usuarioService = usuarioService;
+        this.passwordEncoder = passwordEncoder;
         this.enderecoRepository = enderecoRepository;
     }
 
@@ -40,6 +48,7 @@ public class ClienteService {
     public Cliente save(ClienteRequest request) {
         Usuario usuario = this.saveUser(request);
         Cliente cliente = Cliente.fromRequest(request);
+        cliente.setSenha(this.passwordEncoder.encode(request.getSenha()));
         cliente.setUsuario(usuario);
         cliente.setEnderecos(new ArrayList<>());
         cliente.setHabilitado(Boolean.TRUE);
@@ -92,6 +101,11 @@ public class ClienteService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente", id));
     }
 
+    public Endereco findAddressById(Long addressId) {
+        return this.enderecoRepository.findById(addressId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Endereço", addressId));
+    }
+
     @Transactional
     public void delete(Long id) {
         Cliente cliente = this.repository.findByIdAndHabilitadoTrue(id);
@@ -123,11 +137,6 @@ public class ClienteService {
     public List<Endereco> findAllAddress(Long id) {
         Cliente cliente = this.findById(id);
         return cliente.getEnderecos();
-    }
-
-    public Endereco findAddressById(Long addressId) {
-        return this.enderecoRepository.findById(addressId)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Endereço", addressId));
     }
 
     @Transactional

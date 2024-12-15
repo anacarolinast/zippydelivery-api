@@ -7,6 +7,7 @@ import br.com.zippydeliveryapi.util.enums.StatusEnum;
 import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +21,13 @@ public class EntregadorService {
     @Autowired
     private final UsuarioService usuarioService;
 
-    public EntregadorService(EntregadorRepository repository, UsuarioService usuarioService) {
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
+
+    public EntregadorService(EntregadorRepository repository, UsuarioService usuarioService, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.usuarioService = usuarioService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -44,6 +49,7 @@ public class EntregadorService {
     public Entregador save(Entregador entregador) {
         this.usuarioService.save(entregador.getUsuario());
         entregador.setHabilitado(Boolean.TRUE);
+        entregador.setSenha(this.passwordEncoder.encode(entregador.getSenha()));
         entregador.setStatus(StatusEnum.PENDENTE.getCodigo());
         return this.repository.save(entregador);
     }

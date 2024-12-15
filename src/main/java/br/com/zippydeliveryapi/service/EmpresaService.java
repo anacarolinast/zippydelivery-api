@@ -13,6 +13,7 @@ import br.com.zippydeliveryapi.util.enums.StatusEnum;
 import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.util.Arrays;
@@ -34,11 +35,15 @@ public class EmpresaService {
     @Autowired
     private final UsuarioService usuarioService;
 
-    public EmpresaService(EmpresaRepository repository, EnderecoRepository enderecoRepository, CategoriaEmpresaRepository categoriaEmpresaRepository, UsuarioService usuarioService) {
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
+
+    public EmpresaService(EmpresaRepository repository, EnderecoRepository enderecoRepository, CategoriaEmpresaRepository categoriaEmpresaRepository, UsuarioService usuarioService, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.enderecoRepository = enderecoRepository;
         this.categoriaEmpresaRepository = categoriaEmpresaRepository;
         this.usuarioService = usuarioService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -51,6 +56,7 @@ public class EmpresaService {
 
         Empresa empresa = Empresa.fromRequest(request);
         empresa.setHabilitado(Boolean.TRUE);
+        empresa.setSenha(this.passwordEncoder.encode(request.getSenha()));
         empresa.setUsuario(usuario);
         empresa.setEndereco(endereco);
         empresa.setCategoria(categoriaEmpresa);

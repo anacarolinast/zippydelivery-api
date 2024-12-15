@@ -1,7 +1,6 @@
 package br.com.zippydeliveryapi.model;
 
 import java.util.Set;
-
 import br.com.zippydeliveryapi.model.dto.request.EmpresaRequest;
 import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
 import br.com.zippydeliveryapi.util.enums.FormaPagamentoEnum;
@@ -64,6 +63,8 @@ public class Empresa extends EntidadeNegocio {
     private String imgCapa;
 
     private int status;
+
+    private String senha;
 
     @ManyToOne
     @JoinColumn(name = "endereco_id")
