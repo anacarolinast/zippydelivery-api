@@ -75,8 +75,8 @@ public class CategoriaProdutoController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/categoria-empresa/{id}")
-    public List<CategoriaProduto> verCategoriasProdutosPorEmpresa(@PathVariable Long id) {
-        return this.categoriaProdutoService.findByEmpresaId(id);
+    @GetMapping("/empresa/{id}")
+    public List<CategoriaProduto> verCategoriasProdutosPorEmpresa(@PathVariable("id") Long empresaId) {
+        return this.categoriaProdutoService.findByEmpresaId(empresaId);
     }
 }

@@ -1,5 +1,6 @@
 package br.com.zippydeliveryapi.model;
 
+import br.com.zippydeliveryapi.model.dto.request.ProdutoRequest;
 import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,4 +35,14 @@ public class Produto extends EntidadeNegocio {
 
     private Boolean disponibilidade;
 
+
+    public static Produto fromRequest(ProdutoRequest request) {
+        return Produto.builder()
+                .titulo(request.getTitulo())
+                .imagem(request.getImagem())
+                .descricao(request.getDescricao())
+                .preco(request.getPreco())
+                .disponibilidade(request.getDisponibilidade())
+                .build();
+    }
 }

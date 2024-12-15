@@ -1,6 +1,5 @@
 package br.com.zippydeliveryapi.model.dto.request;
 
-import br.com.zippydeliveryapi.model.Produto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +13,8 @@ public class ProdutoRequest {
 
    private Long categoriaId;
 
+   private Long empresaId;
+
    private String titulo;
 
    private String imagem;
@@ -24,17 +25,4 @@ public class ProdutoRequest {
 
    private Boolean disponibilidade;
 
-   private Integer tempoEntregaMinimo;
-
-   private Integer tempoEntregaMaximo;
-
-   public Produto build() {
-      return Produto.builder()
-            .descricao(descricao)
-            .imagem(imagem)
-            .titulo(titulo)
-            .disponibilidade(disponibilidade)
-            .preco(preco)
-            .build();
-   }
 }

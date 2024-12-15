@@ -1,7 +1,11 @@
 package br.com.zippydeliveryapi.service;
 
 import br.com.zippydeliveryapi.model.CategoriaProduto;
+import br.com.zippydeliveryapi.model.Empresa;
 import br.com.zippydeliveryapi.model.Produto;
+import br.com.zippydeliveryapi.model.dto.request.ProdutoRequest;
+import br.com.zippydeliveryapi.repository.CategoriaProdutoRepository;
+import br.com.zippydeliveryapi.repository.EmpresaRepository;
 import br.com.zippydeliveryapi.repository.ProdutoRepository;
 import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import br.com.zippydeliveryapi.util.exception.ProdutoException;
@@ -19,16 +23,39 @@ public class ProdutoService {
     @Autowired
     private final ProdutoRepository repository;
 
-    public ProdutoService(ProdutoRepository repository) {
+    @Autowired
+    private final CategoriaProdutoRepository categoriaProdutoRepository;
+
+    @Autowired final EmpresaRepository empresaRepository;
+
+    public ProdutoService(ProdutoRepository repository, CategoriaProdutoRepository categoriaProdutoRepository, EmpresaRepository empresaRepository) {
         this.repository = repository;
+        this.categoriaProdutoRepository = categoriaProdutoRepository;
+        this.empresaRepository = empresaRepository;
     }
 
     @Transactional
-    public Produto save(Produto produto) {
-        if (!produto.getDisponibilidade()) {
+    public Produto save(ProdutoRequest request) {
+        if (!request.getDisponibilidade()) {
             throw new ProdutoException(ProdutoException.MESSAGE_DISPONIBILIDADE_PRODUTO);
         }
+
+        CategoriaProduto categoriaProduto = this.categoriaProdutoRepository.findById(request.getCategoriaId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("CategoriaProduto", request.getCategoriaId()));
+        if(!categoriaProduto.getHabilitado()){
+            throw new ProdutoException("Categoria desabilitada");
+        }
+
+        Empresa empresa = this.empresaRepository.findByIdAndHabilitadoTrue(request.getEmpresaId());
+        if (empresa == null) {
+            throw new ProdutoException("Empresa não encontrada ou inativa");
+        }
+
+        Produto produto = Produto.fromRequest(request);
+        produto.setEmpresa(empresa);
+        produto.setCategoria(categoriaProduto);
         produto.setHabilitado(Boolean.TRUE);
+
         return this.repository.save(produto);
     }
 
@@ -46,14 +73,19 @@ public class ProdutoService {
     }
 
     @Transactional
-    public void update(Long id, Produto produtoAlterado) {
+    public void update(Long id, ProdutoRequest request) {
         Produto produto = this.findById(id);
-        produto.setCategoria(produtoAlterado.getCategoria());
-        produto.setDescricao(produtoAlterado.getDescricao());
-        produto.setTitulo(produtoAlterado.getTitulo());
-        produto.setImagem(produtoAlterado.getImagem());
-        produto.setPreco(produtoAlterado.getPreco());
-        produto.setDisponibilidade(produtoAlterado.getDisponibilidade());
+        CategoriaProduto categoriaProduto = this.categoriaProdutoRepository.findById(request.getCategoriaId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("CategoriaProduto", request.getCategoriaId()));
+        if(!categoriaProduto.getHabilitado()){
+            throw new ProdutoException("Categoria desabilitada");
+        }
+        produto.setCategoria(categoriaProduto);
+        produto.setDescricao(request.getDescricao());
+        produto.setTitulo(request.getTitulo());
+        produto.setImagem(request.getImagem());
+        produto.setPreco(request.getPreco());
+        produto.setDisponibilidade(request.getDisponibilidade());
         this.repository.save(produto);
     }
 

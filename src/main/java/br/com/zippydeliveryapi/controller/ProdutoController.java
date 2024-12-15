@@ -3,7 +3,6 @@ package br.com.zippydeliveryapi.controller;
 import java.util.List;
 import br.com.zippydeliveryapi.model.Produto;
 import br.com.zippydeliveryapi.model.dto.request.ProdutoRequest;
-import br.com.zippydeliveryapi.service.CategoriaProdutoService;
 import br.com.zippydeliveryapi.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,24 +24,16 @@ import jakarta.validation.Valid;
 public class ProdutoController {
 
     @Autowired
-    private final CategoriaProdutoService categoriaProdutoService;
-
-    @Autowired
     private final ProdutoService produtoService;
 
-    public ProdutoController(CategoriaProdutoService categoriaProdutoService, ProdutoService produtoService) {
-        this.categoriaProdutoService = categoriaProdutoService;
+    public ProdutoController(ProdutoService produtoService) {
         this.produtoService = produtoService;
     }
 
 
     @PostMapping
     public ResponseEntity<Produto> save(@RequestBody @Valid ProdutoRequest request) {
-        Produto produtoNovo = request.build();
-        produtoNovo.setCategoria(this.categoriaProdutoService.findById(request.getCategoriaId()));
-        Produto produto = this.produtoService.save(produtoNovo);
-
-        return new ResponseEntity<>(produto, HttpStatus.CREATED);
+        return new ResponseEntity<>(this.produtoService.save(request), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -56,10 +47,8 @@ public class ProdutoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> update(@PathVariable("id") Long id, @RequestBody ProdutoRequest request) {
-        Produto produto = request.build();
-        this.produtoService.update(id, produto);
-
+    public ResponseEntity<Produto> update(@PathVariable Long id, @RequestBody ProdutoRequest request) {
+        this.produtoService.update(id, request);
         return ResponseEntity.ok().build();
     }
 
@@ -75,7 +64,7 @@ public class ProdutoController {
     }
 
      @GetMapping("/categoria-empresa/{id}")
-    public List<List<Object>> agruparPorCategoriaeEmpresa(@PathVariable Long id) {
-        return this.produtoService.agruparPorCategoriaeEmpresa(id);
+    public List<List<Object>> agruparPorCategoriaeEmpresa(@PathVariable("id") Long empresaId) {
+        return this.produtoService.agruparPorCategoriaeEmpresa(empresaId);
     }
 }
