@@ -1,5 +1,6 @@
 package br.com.zippydeliveryapi.model;
 
+import br.com.zippydeliveryapi.model.dto.request.CupomDescontoRequest;
 import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,4 +33,15 @@ public class CupomDesconto extends EntidadeNegocio {
 
     private LocalDate fimVigencia;
 
+    public static CupomDesconto fromRequest(CupomDescontoRequest request) {
+        return CupomDesconto.builder()
+                .codigo(request.getCodigo())
+                .percentualDesconto(request.getPercentualDesconto())
+                .valorDesconto(request.getValorDesconto())
+                .valorMinimoPedidoPermitido(request.getValorMinimoPedidoPermitido())
+                .quantidadeMaximaUso(request.getQuantidadeMaximaUso())
+                .inicioVigencia(request.getInicioVigencia())
+                .fimVigencia(request.getFimVigencia())
+                .build();
+    }
 }

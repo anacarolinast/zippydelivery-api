@@ -1,7 +1,6 @@
 package br.com.zippydeliveryapi.model.dto.request;
 
 import java.time.LocalDate;
-
 import br.com.zippydeliveryapi.model.CupomDesconto;
 import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -38,7 +37,6 @@ public class CupomDescontoRequest {
   private Integer quantidadeMaximaUso;
 
   public CupomDesconto build() {
-
     return CupomDesconto.builder()
         .codigo(codigo)
         .percentualDesconto(percentualDesconto)
@@ -50,4 +48,15 @@ public class CupomDescontoRequest {
         .build();
   }
 
+  public static CupomDescontoRequest fromEntity(CupomDesconto cupomDesconto) {
+    CupomDescontoRequest request = new CupomDescontoRequest();
+    request.setCodigo(cupomDesconto.getCodigo());
+    request.setPercentualDesconto(cupomDesconto.getPercentualDesconto());
+    request.setValorDesconto(cupomDesconto.getValorDesconto());
+    request.setValorMinimoPedidoPermitido(cupomDesconto.getValorMinimoPedidoPermitido());
+    request.setQuantidadeMaximaUso(cupomDesconto.getQuantidadeMaximaUso());
+    request.setInicioVigencia(cupomDesconto.getInicioVigencia());
+    request.setFimVigencia(cupomDesconto.getFimVigencia());
+    return request;
+  }
 }

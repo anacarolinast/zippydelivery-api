@@ -33,8 +33,7 @@ public class CupomDescontoController {
 
     @PostMapping
     public ResponseEntity<CupomDesconto> save(@RequestBody @Valid CupomDescontoRequest request) {
-        CupomDesconto cupom = this.cupomDescontoService.save(request.build());
-        return new ResponseEntity<>(cupom, HttpStatus.CREATED);
+        return new ResponseEntity<>(this.cupomDescontoService.save(request), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -53,7 +52,7 @@ public class CupomDescontoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CupomDesconto> update(@PathVariable("id") Long id, @RequestBody CupomDesconto request) {
+    public ResponseEntity<CupomDesconto> update(@PathVariable Long id, @RequestBody CupomDescontoRequest request) {
         this.cupomDescontoService.update(id, request);
         return ResponseEntity.ok().build();
     }

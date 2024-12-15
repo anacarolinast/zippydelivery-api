@@ -1,15 +1,19 @@
 package br.com.zippydeliveryapi.service;
 
 import br.com.zippydeliveryapi.model.CupomDesconto;
+import br.com.zippydeliveryapi.model.dto.request.CupomDescontoRequest;
 import br.com.zippydeliveryapi.repository.CupomDescontoRepository;
 import br.com.zippydeliveryapi.util.exception.CupomDescontoException;
 import br.com.zippydeliveryapi.model.Pedido;
+import br.com.zippydeliveryapi.util.exception.ProdutoException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CupomDescontoService {
@@ -23,10 +27,15 @@ public class CupomDescontoService {
 
 
     @Transactional
-    public CupomDesconto save(CupomDesconto cupom) {
-        this.validateDateRange(cupom);
-        cupom.setHabilitado(Boolean.TRUE);
-        return this.repository.save(cupom);
+    public CupomDesconto save(CupomDescontoRequest request) {
+        Optional<CupomDesconto> cupom = this.repository.findByCodigo(request.getCodigo());
+        if(cupom.isPresent()){
+            throw new ProdutoException("Já existe um cupom de desconto ativo com esse código");
+        }
+        CupomDesconto cupomDesconto = CupomDesconto.fromRequest(request);
+        this.validateDateRange(cupomDesconto);
+        cupomDesconto.setHabilitado(Boolean.TRUE);
+        return this.repository.save(cupomDesconto);
     }
 
     public List<CupomDesconto> findAll() {
@@ -45,15 +54,15 @@ public class CupomDescontoService {
     }
 
     @Transactional
-    public void update(Long id, CupomDesconto cupomAlterado) {
+    public void update(Long id, CupomDescontoRequest request) {
         CupomDesconto cupomDesconto = this.findById(id);
-        cupomDesconto.setCodigo(cupomAlterado.getCodigo());
-        cupomDesconto.setPercentualDesconto(cupomAlterado.getPercentualDesconto());
-        cupomDesconto.setValorDesconto(cupomAlterado.getValorDesconto());
-        cupomDesconto.setValorMinimoPedidoPermitido(cupomAlterado.getValorMinimoPedidoPermitido());
-        cupomDesconto.setQuantidadeMaximaUso(cupomAlterado.getQuantidadeMaximaUso());
-        cupomDesconto.setInicioVigencia(cupomAlterado.getInicioVigencia());
-        cupomDesconto.setFimVigencia(cupomAlterado.getFimVigencia());
+        cupomDesconto.setCodigo(StringUtils.hasText(request.getCodigo()) ? request.getCodigo() : cupomDesconto.getCodigo());
+        cupomDesconto.setPercentualDesconto((request.getPercentualDesconto() > 0) ? request.getPercentualDesconto() : cupomDesconto.getPercentualDesconto());
+        cupomDesconto.setValorDesconto((request.getValorDesconto() >= 0) ? request.getValorDesconto() : cupomDesconto.getValorDesconto());
+        cupomDesconto.setValorMinimoPedidoPermitido((request.getValorMinimoPedidoPermitido() > 0) ? request.getValorMinimoPedidoPermitido() : cupomDesconto.getValorMinimoPedidoPermitido());
+        cupomDesconto.setQuantidadeMaximaUso((request.getQuantidadeMaximaUso() > 0) ? request.getQuantidadeMaximaUso() : cupomDesconto.getQuantidadeMaximaUso());
+        cupomDesconto.setInicioVigencia(request.getInicioVigencia());
+        cupomDesconto.setFimVigencia(request.getFimVigencia());
         this.repository.save(cupomDesconto);
     }
 
@@ -95,7 +104,7 @@ public class CupomDescontoService {
 
         this.aplicarDescontoNoPedido(pedido, desconto);
         cupom.setQuantidadeMaximaUso(cupom.getQuantidadeMaximaUso() - 1);
-        this.update(cupom.getId(), cupom);
+        this.update(cupom.getId(), CupomDescontoRequest.fromEntity(cupom));
     }
 
 }
