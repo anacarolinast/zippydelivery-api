@@ -27,14 +27,6 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void desabilitar(Usuario user) {
-        user.setHabilitado(Boolean.FALSE);
-        user.setUsername("");
-        user.setPassword("");
-        this.repository.save(user);
-    }
-
-    @Transactional
     public Usuario findByUsername(String username) {
         return this.repository.findByUsername(username);
     }

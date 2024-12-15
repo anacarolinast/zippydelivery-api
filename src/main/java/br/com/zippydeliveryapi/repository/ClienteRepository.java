@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
-    public Cliente findByUsuario(Optional<Usuario> usuario);
+    Cliente findByUsuario(Optional<Usuario> usuario);
+
+    Cliente findByIdAndHabilitadoTrue(Long id);
 
 }

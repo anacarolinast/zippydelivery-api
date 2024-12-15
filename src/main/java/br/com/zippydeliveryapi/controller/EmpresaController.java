@@ -72,6 +72,6 @@ public class EmpresaController {
 
     @GetMapping("/usuario/{id}")
     public Empresa findByUser(@PathVariable Long id) {
-        return this.empresaService.findByUsuario(id);
+        return this.empresaService.findByUsuarioId(id);
     }
 }

@@ -32,8 +32,7 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<Cliente> save(@RequestBody @Valid ClienteRequest request) {
-        Cliente cliente = this.clienteService.save(request.build());
-        return new ResponseEntity<>(cliente, HttpStatus.CREATED);
+        return new ResponseEntity<>(this.clienteService.save(request), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -47,8 +46,8 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> update(@PathVariable("id") Long id, @RequestBody ClienteRequest request) {
-        this.clienteService.update(id, request.build());
+    public ResponseEntity<Cliente> update(@PathVariable Long id, @RequestBody ClienteRequest request) {
+        this.clienteService.update(id, request);
         return ResponseEntity.ok().build();
     }
 

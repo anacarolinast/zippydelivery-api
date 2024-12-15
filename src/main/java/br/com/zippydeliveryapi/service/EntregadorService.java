@@ -8,7 +8,6 @@ import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +61,6 @@ public class EntregadorService {
         this.repository.save(entregador);
     }
 
-
     @Transactional
     public void updateStatus(Long id, StatusEnum novoStatus) {
         Entregador entregador = this.findById(id);
@@ -74,10 +72,11 @@ public class EntregadorService {
     public void delete(Long id) {
         Entregador entregador = this.findById(id);
         entregador.setHabilitado(Boolean.FALSE);
-        entregador.setCpf("");
-        entregador.setEmail("");
-        entregador.getUsuario().setUsername("");
-        entregador.getUsuario().setPassword("");
+        entregador.setCpf(String.format("deleted-%d-%s", entregador.getId(), entregador.getCpf()));
+        entregador.setEmail(String.format("deleted-%d-%s", entregador.getId(), entregador.getEmail()));
+        entregador.getUsuario().setUsername(String.format("deleted-%d-%s", entregador.getUsuario().getId(), entregador.getUsuario().getUsername()));
+        entregador.getUsuario().setPassword(String.format("deleted-%d-%s", entregador.getUsuario().getId(), entregador.getUsuario().getPassword()));
+        entregador.getUsuario().setHabilitado(Boolean.FALSE);
         this.repository.save(entregador);
     }
 }

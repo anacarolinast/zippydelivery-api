@@ -1,6 +1,14 @@
 package br.com.zippydeliveryapi.service;
 
-import br.com.zippydeliveryapi.model.CupomDesconto;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import br.com.zippydeliveryapi.model.ItensPedido;
 import br.com.zippydeliveryapi.model.Pedido;
 import br.com.zippydeliveryapi.model.dto.response.DashBoardResponse;
@@ -9,14 +17,6 @@ import br.com.zippydeliveryapi.repository.PedidoRepository;
 import br.com.zippydeliveryapi.util.enums.StatusEnum;
 import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PedidoService {

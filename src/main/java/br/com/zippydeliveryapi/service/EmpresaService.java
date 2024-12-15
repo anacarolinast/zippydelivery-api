@@ -15,11 +15,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class EmpresaService {
@@ -140,17 +138,19 @@ public class EmpresaService {
     public void delete(Long id) {
         Empresa empresa = this.repository.findByIdAndHabilitadoTrue(id);
         if(empresa != null){
-            this.usuarioService.desabilitar(empresa.getUsuario());
             empresa.setHabilitado(Boolean.FALSE);
-            empresa.setCnpj("");
-            empresa.setEmail("");
-            empresa.setTelefone("");
+            empresa.setCnpj(String.format("deleted-%d-%s", empresa.getId(), empresa.getCnpj()));
+            empresa.setEmail(String.format("deleted-%d-%s", empresa.getId(), empresa.getEmail()));
+            empresa.setTelefone(String.format("deleted-%d", empresa.getId()));
             empresa.setStatus(0);
+            empresa.getUsuario().setUsername(String.format("deleted-%d-%s", empresa.getUsuario().getId(), empresa.getUsuario().getUsername()));
+            empresa.getUsuario().setPassword(String.format("deleted-%d-%s", empresa.getUsuario().getId(), empresa.getUsuario().getPassword()));
+            empresa.getUsuario().setHabilitado(Boolean.FALSE);
             this.repository.save(empresa);
         }
     }
 
-    public Empresa findByUsuario(Long userId) {
+    public Empresa findByUsuarioId(Long userId) {
         Usuario usuario = this.usuarioService.findById(userId)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Empresa", userId));
         return this.repository.findByUsuario(usuario);

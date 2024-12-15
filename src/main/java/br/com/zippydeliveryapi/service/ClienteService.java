@@ -1,14 +1,18 @@
 package br.com.zippydeliveryapi.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import br.com.zippydeliveryapi.model.Cliente;
 import br.com.zippydeliveryapi.model.Usuario;
+import br.com.zippydeliveryapi.model.dto.request.ClienteRequest;
 import br.com.zippydeliveryapi.repository.ClienteRepository;
 import br.com.zippydeliveryapi.util.exception.EntidadeNaoEncontradaException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClienteService {
@@ -27,18 +31,44 @@ public class ClienteService {
     // TODO endpoint para atualizar endereços
 
     @Transactional
-    public Cliente save(Cliente cliente) {
-        this.usuarioService.save(cliente.getUsuario());
+    public Cliente save(ClienteRequest request) {
+        Usuario usuario = this.saveUser(request);
+        Cliente cliente = Cliente.fromRequest(request);
+        cliente.setUsuario(usuario);
+        cliente.setEnderecos(new ArrayList<>());
         cliente.setHabilitado(Boolean.TRUE);
         return this.repository.save(cliente);
     }
 
     @Transactional
-    public void update(Long id, Cliente clienteAlterado) {
+    private Usuario saveUser(ClienteRequest request) {
+        Usuario usuario = null;
+        try {
+            usuario = this.usuarioService.findByUsername(request.getEmail());
+            if(usuario == null){
+                usuario = Usuario.builder()
+                        .roles(Arrays.asList(Usuario.ROLE_EMPRESA))
+                        .username(request.getEmail())
+                        .password(request.getSenha())
+                        .build();
+                return this.usuarioService.save(usuario);
+            } else {
+                throw new IllegalArgumentException("Já existe um usuário com o e-mail: " + request.getEmail());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao salvar o usuário: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void update(Long id, ClienteRequest request) {
         Cliente cliente = this.findById(id);
-        cliente.setNome(clienteAlterado.getNome());
-        cliente.setEmail(clienteAlterado.getEmail());
-        cliente.setSenha(clienteAlterado.getSenha());
+        if(StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(cliente.getEmail())){
+            cliente.setEmail(request.getEmail());
+            cliente.getUsuario().setUsername(request.getEmail());
+        }
+        cliente.setNome(request.getNome());
+        cliente.setSenha(request.getSenha());
         this.repository.save(cliente);
     }
 
@@ -58,12 +88,15 @@ public class ClienteService {
 
     @Transactional
     public void delete(Long id) {
-        Cliente cliente = this.findById(id);
-        cliente.setHabilitado(Boolean.FALSE);
-        cliente.setCpf("");
-        cliente.setEmail("");
-        cliente.getUsuario().setUsername("");
-        cliente.getUsuario().setPassword("");
-        this.repository.save(cliente);
+        Cliente cliente = this.repository.findByIdAndHabilitadoTrue(id);
+        if(cliente != null){
+            cliente.setHabilitado(Boolean.FALSE);
+            cliente.setCpf(String.format("deleted-%d-%s", cliente.getId(), cliente.getCpf()));
+            cliente.setEmail(String.format("deleted-%d-%s", cliente.getId(), cliente.getEmail()));
+            cliente.getUsuario().setUsername(String.format("deleted-%d-%s", cliente.getUsuario().getId(), cliente.getUsuario().getUsername()));
+            cliente.getUsuario().setPassword(String.format("deleted-%d-%s", cliente.getUsuario().getId(), cliente.getUsuario().getPassword()));
+            cliente.getUsuario().setHabilitado(Boolean.FALSE);
+            this.repository.save(cliente);
+        }
     }
 }
