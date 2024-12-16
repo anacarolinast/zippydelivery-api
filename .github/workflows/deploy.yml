@@ -63,6 +63,6 @@ jobs:
       - name: Push Docker image
         run: docker push zippydelivery/zippydelivery-v1:v1.0
 
-      # Step 9: Start services with Docker Compose
+      # Step 9: Start services Docker Compose
       - name: Start services with Docker Compose
         run: docker-compose up -d
