@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2
+      # Step 2: Setup Java
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -26,33 +26,46 @@ jobs:
       - name: Build with Maven (skip tests)
         run: mvn clean install -DskipTests
 
-      # Step 4
+      # Step 4: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5 - Install Docker Compose
+      # Step 5: Install Docker Compose
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      # Step 6 - Build Docker image
+      # Step 6: Build Docker image
       - name: Build Docker image
         run: docker build -t zippydelivery/zippydelivery-v1:v1.0 .
 
-      # Step 7 - Push Docker image
+      # Step 7: Push Docker image
       - name: Push Docker image
         run: docker push zippydelivery/zippydelivery-v1:v1.0
 
-      # Step 8 - Start services with Docker Compose
+      # Step 8: Create .env file from Secrets
+      - name: Create .env file from Secrets
+        run: |
+          echo "HOST_DB=${{ secrets.HOST_DB }}" >> .env
+          echo "PORT_DB=${{ secrets.PORT_DB }}" >> .env
+          echo "PASS_DB=${{ secrets.PASS_DB }}" >> .env
+          echo "HOST_EMAIL=${{ secrets.HOST_EMAIL }}" >> .env
+          echo "PORT_EMAIL=${{ secrets.PORT_EMAIL }}" >> .env
+          echo "MEU_EMAIL=${{ secrets.MEU_EMAIL }}" >> .env
+          echo "MINHA_SENHA=${{ secrets.MINHA_SENHA }}" >> .env
+          echo "PROP_AUTH=${{ secrets.PROP_AUTH }}" >> .env
+          echo "PROP_TLS=${{ secrets.PROP_TLS }}" >> .env
+
+      # Step 9: Start services with Docker Compose
       - name: Start services with Docker Compose
         run: docker-compose up -d
 
-      # Step 9 - Run application container
+      # Step 10: Run application container
       - name: Run application container
         run: |
           docker stop zippydelivery-api || true
