@@ -48,18 +48,9 @@ jobs:
       - name: Push Docker image
         run: docker push zippydelivery/zippydelivery-v1:v1.0
 
-      # Step 8: Create .env file from Secrets
-      - name: Create .env file from Secrets
-        run: |
-          echo "HOST_DB=${{ secrets.HOST_DB }}" >> .env
-          echo "PORT_DB=${{ secrets.PORT_DB }}" >> .env
-          echo "PASS_DB=${{ secrets.PASS_DB }}" >> .env
-          echo "HOST_EMAIL=${{ secrets.HOST_EMAIL }}" >> .env
-          echo "PORT_EMAIL=${{ secrets.PORT_EMAIL }}" >> .env
-          echo "MEU_EMAIL=${{ secrets.MEU_EMAIL }}" >> .env
-          echo "MINHA_SENHA=${{ secrets.MINHA_SENHA }}" >> .env
-          echo "PROP_AUTH=${{ secrets.PROP_AUTH }}" >> .env
-          echo "PROP_TLS=${{ secrets.PROP_TLS }}" >> .env
+      # Step 8: Create .env file from ENV_FILE_CONTENT secret
+      - name: Create .env file from ENV_FILE_CONTENT secret
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
 
       # Step 9: Start services with Docker Compose
       - name: Start services with Docker Compose
