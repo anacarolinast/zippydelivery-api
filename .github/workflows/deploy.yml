@@ -67,7 +67,7 @@ jobs:
       - name: Start services with Docker Compose
         run: docker-compose up -d
 
-      # Step 10: Run application container
+      # Step 10: Run application container without -e flag
       - name: Run application container
         run: |
-          docker run -d --name zippydelivery-api -p 8080:8080 --env-file .env zippydelivery/zippydelivery-v1:v1.0
+          docker run -d --name zippydelivery-api -p 8080:8080 zippydelivery/zippydelivery-v1:v1.0
