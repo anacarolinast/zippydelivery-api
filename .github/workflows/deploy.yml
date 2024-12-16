@@ -37,7 +37,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # Step 4 - Build with Maven (Skip tests)
+      # Step 4 - Build with Maven
       - name: Build with Maven (skip tests)
         run: mvn clean install -DskipTests
 
