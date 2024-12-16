@@ -68,6 +68,5 @@ jobs:
       # Step 10: Run application container
       - name: Run application container
         run: |
-          docker stop zippydelivery-api || true
-          docker rm zippydelivery-api || true
+        run: |
           docker run -d --name zippydelivery-api -p 8080:8080 --env-file .env zippydelivery/zippydelivery-v1:v1.0
