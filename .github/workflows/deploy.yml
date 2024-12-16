@@ -11,49 +11,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Set environment variables
+      - name: Set environment variables
+        env:
+          HOST_DB: ${{ secrets.HOST_DB }}
+          PORT_DB: ${{ secrets.PORT_DB }}
+          PASS_DB: ${{ secrets.PASS_DB }}
+          HOST_EMAIL: ${{ secrets.HOST_EMAIL }}
+          PORT_EMAIL: ${{ secrets.PORT_EMAIL }}
+          MEU_EMAIL: ${{ secrets.MEU_EMAIL }}
+          MINHA_SENHA: ${{ secrets.MINHA_SENHA }}
+          PROP_AUTH: ${{ secrets.PROP_AUTH }}
+          PROP_TLS: ${{ secrets.PROP_TLS }}
+        run: |
+          echo "Environment variables set."
+
+      # Step 2: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Setup Java
+      # Step 3: Setup Java
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '21'
 
-      # Step 3 - Build with Maven (Skip tests)
+      # Step 4 - Build with Maven (Skip tests)
       - name: Build with Maven (skip tests)
         run: mvn clean install -DskipTests
 
-      # Step 4: Log in to Docker Hub
+      # Step 5: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Install Docker Compose
+      # Step 6: Install Docker Compose
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      # Step 6: Build Docker image
+      # Step 7: Build Docker image
       - name: Build Docker image
         run: docker build -t zippydelivery/zippydelivery-v1:v1.0 .
 
-      # Step 7: Push Docker image
+      # Step 8: Push Docker image
       - name: Push Docker image
         run: docker push zippydelivery/zippydelivery-v1:v1.0
-
-      # Step 8: Create .env file from ENV_FILE_CONTENT secret
-      - name: Create .env file from ENV_FILE_CONTENT secret
-        run: |
-          touch .env 
-          echo "${{ secrets.ENV_FILE_CONTENT }}" > .env  
-          cat .env
 
       # Step 9: Start services with Docker Compose
       - name: Start services with Docker Compose
