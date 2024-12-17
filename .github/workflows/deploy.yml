@@ -40,7 +40,19 @@ jobs:
     runs-on: [self-hosted, linux]
 
     steps:
-      - name: Remove existing container
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Start PostgreSQL and Application using Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml up -d
+
+      - name: Remove existing container (if any)
         run: |
           docker ps -a -q --filter "name=zippydelivery-v1" | grep -q . && docker rm -f zippydelivery-v1 || echo "No container to remove"
 
@@ -49,4 +61,8 @@ jobs:
 
       - name: Run Docker Container
         run: |
-          docker run -d --name zippydelivery-v1 -p 8080:8080 -e USER_DB=${{ secrets.USER_DB }} -e PASS_DB='${{ secrets.PASS_DB }}' -e URL_DB=${{ secrets.URL_DB }} zippydelivery/zippydelivery-v1:v1.0
+          docker run -d --name zippydelivery-v1 -p 8080:8080 \
+            -e USER_DB=${{ secrets.USER_DB }} \
+            -e PASS_DB=${{ secrets.PASS_DB }} \
+            -e URL_DB=${{ secrets.URL_DB }} \
+            zippydelivery/zippydelivery-v1:v1.0
