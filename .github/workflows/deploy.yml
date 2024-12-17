@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Remove existing container
         run: |
-          docker ps -a -q --filter "name=***-v1" | grep -q . && docker rm -f ***-v1 || echo "No container to remove"
+          docker ps -a -q --filter "name=zippydelivery-v1" | grep -q . && docker rm -f zippydelivery-v1 || echo "No container to remove"
 
       - name: Pull Docker Image
         run: docker pull zippydelivery/zippydelivery-v1:v1.0
