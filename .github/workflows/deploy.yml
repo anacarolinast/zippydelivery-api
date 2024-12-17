@@ -42,7 +42,8 @@ jobs:
         run: docker push zippydelivery/zippydelivery-v1:v1.0
 
   deploy_self_hosted:
-    runs-on: [self-hosted, linux]
+    needs: deploy  # Garantir que esse job será executado após a conclusão bem-sucedida do job "deploy"
+    runs-on: [self-hosted, linux]  # Executar no runner auto-hospedado no EC2
 
     steps:
       # Step 7.1: Remove existing container (if it exists)
