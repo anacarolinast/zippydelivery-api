@@ -11,58 +11,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Set environment variables
-      - name: Set environment variables
-        env:
-          HOST_DB: ${{ secrets.HOST_DB }}
-          PORT_DB: ${{ secrets.PORT_DB }}
-          PASS_DB: ${{ secrets.PASS_DB }}
-          HOST_EMAIL: ${{ secrets.HOST_EMAIL }}
-          PORT_EMAIL: ${{ secrets.PORT_EMAIL }}
-          MEU_EMAIL: ${{ secrets.MEU_EMAIL }}
-          MINHA_SENHA: ${{ secrets.MINHA_SENHA }}
-          PROP_AUTH: ${{ secrets.PROP_AUTH }}
-          PROP_TLS: ${{ secrets.PROP_TLS }}
-        run: |
-          echo "Environment variables set."
-
-      # Step 2: Checkout code
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 3: Setup Java
+      # Step 2: Setup Java
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '21'
 
-      # Step 4 - Build with Maven
+      # Step 3: Build with Maven (Skip tests)
       - name: Build with Maven (skip tests)
         run: mvn clean install -DskipTests
 
-      # Step 5: Log in to Docker Hub
+      # Step 4: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 6: Install Docker Compose
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      # Step 7: Build Docker image
-      - name: Build Docker image
+      # Step 5: Build Docker image
+      - name: Build Docker Image
         run: docker build -t zippydelivery/zippydelivery-v1:v1.0 .
 
-      # Step 8: Push Docker image
-      - name: Push Docker image
+      # Step 6: Push Docker image to Docker Hub
+      - name: Push Docker Image
         run: docker push zippydelivery/zippydelivery-v1:v1.0
 
-      # Step 9: Start services Docker Compose
-      - name: Start services with Docker Compose
-        run: docker-compose up -d
+      # Step 7: Deploy on self-hosted server
+      - name: Deploy on Self-hosted Server
+        runs-on: self-hosted
+        steps:
+          # Step 7.1: Remove existing container (if it exists)
+          - name: Remove existing container
+            run: docker rm -f zippydelivery-v1 || echo "No container to remove"
+          
+          # Step 7.2: Pull the new image from Docker Hub
+          - name: Pull Docker Image
+            run: docker pull zippydelivery/zippydelivery-v1:v1.0
+
+          # Step 7.3: Run the new container
+          - name: Run Docker Container
+            run: |
+              docker run -d --name zippydelivery-v1 -p 8080:8080 -e USER_DB=${{ secrets.USER_DB }} -e PASS_DB='${{ secrets.PASS_DB }}' -e URL_DB=${{ secrets.URL_DB }} zippydelivery/zippydelivery-v1:v1.0
