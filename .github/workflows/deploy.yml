@@ -43,7 +43,7 @@ jobs:
 
       # Step 7: Deploy on self-hosted server
       - name: Deploy on Self-hosted Server
-        runs-on: self-hosted
+        runs-on: aws-ec2
         steps:
           # Step 7.1: Remove existing container (if it exists)
           - name: Remove existing container
