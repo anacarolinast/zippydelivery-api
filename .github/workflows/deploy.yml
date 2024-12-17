@@ -49,7 +49,7 @@ jobs:
       # Step 7.1: Remove existing container (if it exists)
       - name: Remove existing container
         run: |
-          docker ps -q --filter "name=zippydelivery-v1" | grep -q . && docker rm -f zippydelivery-v1 || echo "No container to remove"
+          docker ps -a -q --filter "name=***-v1" | grep -q . && docker rm -f ***-v1 || echo "No container to remove"
           
       # Step 7.2: Pull the new image from Docker Hub
       - name: Pull Docker Image
