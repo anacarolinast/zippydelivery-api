@@ -41,19 +41,20 @@ jobs:
       - name: Push Docker Image
         run: docker push zippydelivery/zippydelivery-v1:v1.0
 
-      # Step 7: Deploy on self-hosted server
-      - name: Deploy on Self-hosted Server
-        runs-on: aws-ec2
-        steps:
-          # Step 7.1: Remove existing container (if it exists)
-          - name: Remove existing container
-            run: docker rm -f zippydelivery-v1 || echo "No container to remove"
-          
-          # Step 7.2: Pull the new image from Docker Hub
-          - name: Pull Docker Image
-            run: docker pull zippydelivery/zippydelivery-v1:v1.0
+  deploy_self_hosted:
+    runs-on: [self-hosted, linux]
 
-          # Step 7.3: Run the new container
-          - name: Run Docker Container
-            run: |
-              docker run -d --name zippydelivery-v1 -p 8080:8080 -e USER_DB=${{ secrets.USER_DB }} -e PASS_DB='${{ secrets.PASS_DB }}' -e URL_DB=${{ secrets.URL_DB }} zippydelivery/zippydelivery-v1:v1.0
+    steps:
+      # Step 7.1: Remove existing container (if it exists)
+      - name: Remove existing container
+        run: |
+          docker ps -q --filter "name=zippydelivery-v1" | grep -q . && docker rm -f zippydelivery-v1 || echo "No container to remove"
+          
+      # Step 7.2: Pull the new image from Docker Hub
+      - name: Pull Docker Image
+        run: docker pull zippydelivery/zippydelivery-v1:v1.0
+
+      # Step 7.3: Run the new container
+      - name: Run Docker Container
+        run: |
+          docker run -d --name zippydelivery-v1 -p 8080:8080 -e USER_DB=${{ secrets.USER_DB }} -e PASS_DB='${{ secrets.PASS_DB }}' -e URL_DB=${{ secrets.URL_DB }} zippydelivery/zippydelivery-v1:v1.0
