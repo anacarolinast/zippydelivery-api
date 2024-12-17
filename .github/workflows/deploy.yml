@@ -49,4 +49,4 @@ jobs:
 
       - name: Run Docker Container
         run: |
-          docker run -d --name ***-v1 -p 8080:8080 -e USER_DB=${{ secrets.USER_DB }} -e PASS_DB='${{ secrets.PASS_DB }}' -e URL_DB=${{ secrets.URL_DB }} zippydelivery/zippydelivery-v1:v1.0
+          docker run -d --name zippydelivery-v1 -p 8080:8080 -e USER_DB=${{ secrets.USER_DB }} -e PASS_DB='${{ secrets.PASS_DB }}' -e URL_DB=${{ secrets.URL_DB }} zippydelivery/zippydelivery-v1:v1.0
