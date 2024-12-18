@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
-import java.io.Serializable;
 
 @Entity
 @Table(name = "Endereco")
@@ -15,7 +14,7 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Endereco extends EntidadeNegocio implements Serializable {
+public class Endereco extends EntidadeNegocio {
 
     private String logradouro;
 
