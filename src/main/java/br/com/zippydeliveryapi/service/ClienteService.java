@@ -127,6 +127,8 @@ public class ClienteService {
 
         List<Endereco> listaEnderecos = cliente.getEnderecos();
         endereco.setHabilitado(Boolean.TRUE);
+        endereco.setPadraoParaEntrega(listaEnderecos.isEmpty());
+
         listaEnderecos.add(endereco);
 
         cliente.setEnderecos(listaEnderecos);
@@ -180,6 +182,27 @@ public class ClienteService {
                 break;
             }
         }
+        this.repository.save(cliente);
+    }
+
+    @Transactional
+    public void chooseDefaultAddress(Long id, Long enderecoId) {
+        Cliente cliente = this.findById(id);
+        Endereco enderecoParaMarcar = this.findAddressById(enderecoId);
+
+        List<Endereco> listaEnderecos = cliente.getEnderecos();
+        listaEnderecos.forEach(endereco -> {
+            if (endereco.isPadraoParaEntrega()) {
+                if (!endereco.equals(enderecoParaMarcar)) {
+                    endereco.setPadraoParaEntrega(Boolean.FALSE);
+                }
+            }
+        });
+        if (!enderecoParaMarcar.isPadraoParaEntrega()) {
+            enderecoParaMarcar.setPadraoParaEntrega(Boolean.TRUE);
+        }
+        cliente.setEnderecos(listaEnderecos);
+
         this.repository.save(cliente);
     }
 }

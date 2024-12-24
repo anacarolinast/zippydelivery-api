@@ -9,7 +9,6 @@ import br.com.zippydeliveryapi.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +21,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/cliente")
-@CrossOrigin
 public class ClienteController {
 
     @Autowired
@@ -73,4 +71,23 @@ public class ClienteController {
     public List<Endereco> findAllAddress(@PathVariable("clienteId") Long id) {
         return this.clienteService.findAllAddress(id);
     }
+
+    @PutMapping("/{clienteId}/endereco/{enderecoId}")
+    public ResponseEntity<Cliente> updateAddress(@PathVariable Long clienteId, @PathVariable Long enderecoId, @RequestBody EnderecoRequest request) {
+        this.clienteService.updateAddress(clienteId, enderecoId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clienteId}/endereco/{enderecoId}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable Long clienteId, @PathVariable Long enderecoId) {
+        this.clienteService.deleteAddress(clienteId, enderecoId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{clienteId}/endereco/padrao/{enderecoId}")
+    public ResponseEntity<Void> chooseDefaultAddress(@PathVariable Long clienteId, @PathVariable Long enderecoId) {
+        this.clienteService.chooseDefaultAddress(clienteId, enderecoId);
+        return ResponseEntity.ok().build();
+    }
+
 }
