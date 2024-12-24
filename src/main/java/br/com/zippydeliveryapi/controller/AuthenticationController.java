@@ -1,6 +1,8 @@
 package br.com.zippydeliveryapi.controller;
 
 import br.com.zippydeliveryapi.config.JwtUtil;
+import br.com.zippydeliveryapi.model.Usuario;
+import br.com.zippydeliveryapi.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,9 +22,13 @@ public class AuthenticationController {
     @Autowired
     private final JwtUtil jwtUtil;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    @Autowired
+    private final UsuarioService usuarioService;
+
+    public AuthenticationController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UsuarioService usuarioService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.usuarioService = usuarioService;
     }
 
 
@@ -33,13 +39,14 @@ public class AuthenticationController {
         );
 
         User user = (User) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = this.jwtUtil.generateToken(user.getUsername());
+        Long id = this.usuarioService.findByUsername(user.getUsername()).getId();
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token, id));
     }
 
 
     record AuthenticationRequest(String username, String password) {}
-    record AuthResponse(String token) {}
+    record AuthResponse(String token, Long id) {}
 
 }
