@@ -50,16 +50,10 @@ public class EmpresaService {
     @Transactional
     public Empresa save(EmpresaRequest request) {
         Usuario usuario = this.saveUser(request);
-        Endereco endereco = this.saveEndereco(request);
-        CategoriaEmpresa categoriaEmpresa = this.categoriaEmpresaRepository.findById(request.getCategoriaId())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("CategoriaEmpresa", request.getCategoriaId()));
-
         Empresa empresa = Empresa.fromRequest(request);
         empresa.setHabilitado(Boolean.TRUE);
         empresa.setSenha(this.passwordEncoder.encode(request.getSenha()));
         empresa.setUsuario(usuario);
-        empresa.setEndereco(endereco);
-        empresa.setCategoria(categoriaEmpresa);
         return this.repository.save(empresa);
     }
 
@@ -108,6 +102,7 @@ public class EmpresaService {
             empresa.getUsuario().setUsername(request.getEmail());
         }
         empresa.setCategoria(categoriaEmpresa);
+        empresa.setEndereco(this.saveEndereco(request));
         empresa.setNome(StringUtils.hasText(request.getNome()) ? request.getNome() : empresa.getNome());
         empresa.setTempoEntrega((request.getTempoEntrega() > 0) ? request.getTempoEntrega() : empresa.getTempoEntrega());
         empresa.setTaxaFrete((!Objects.equals(request.getTaxaFrete(), empresa.getTaxaFrete())) ? request.getTaxaFrete() : empresa.getTaxaFrete());
@@ -115,7 +110,6 @@ public class EmpresaService {
         empresa.setImgPerfil(StringUtils.hasText(request.getImgPerfil()) ? request.getImgPerfil() : empresa.getImgPerfil());
         empresa.setImgCapa(StringUtils.hasText(request.getImgCapa()) ? request.getImgCapa() : empresa.getImgCapa());
         empresa.setFormasPagamento(request.getFormasPagamento());
-        empresa.setEndereco(this.saveEndereco(request));
 
         this.repository.save(empresa);
     }
