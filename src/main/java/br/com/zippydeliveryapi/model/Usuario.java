@@ -1,6 +1,5 @@
 package br.com.zippydeliveryapi.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Usuario extends EntidadeNegocio implements Serializable {
+public class Usuario extends EntidadeNegocio {
 
    private static final long serialVersionUID = -2660334839251150243L;
    public static final String ROLE_CLIENTE = "CLIENTE"; //Realizar compras no sistema
@@ -39,6 +38,7 @@ public class Usuario extends EntidadeNegocio implements Serializable {
 
    @JsonIgnore
    @ElementCollection(fetch = FetchType.EAGER)
+   @Builder.Default
    private List<String> roles = new ArrayList<>();
 
 }
