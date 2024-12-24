@@ -24,4 +24,6 @@ public class EnderecoRequest {
     private String cep;
 
     private String complemento;
+
+    private String descricao;
 }
