@@ -67,4 +67,9 @@ public class ProdutoController {
     public List<List<Object>> agruparPorCategoriaeEmpresa(@PathVariable("id") Long empresaId) {
         return this.produtoService.agruparPorCategoriaeEmpresa(empresaId);
     }
+
+    @GetMapping("/empresa/{empresaId}")
+    public List<Produto> findByEmpresa(@PathVariable Long empresaId) {
+        return this.produtoService.findByEmpresaId(empresaId);
+    }
 }

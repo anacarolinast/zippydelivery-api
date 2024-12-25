@@ -69,7 +69,11 @@ public class ProdutoService {
     }
 
     public List<Produto> findByCategoriaId(Long categoriaId) {
-        return this.repository.findByCategoriaId(categoriaId);
+        return this.repository.findByCategoriaIdAndHabilitadoTrue(categoriaId);
+    }
+
+    public List<Produto> findByEmpresaId(Long categoriaId) {
+        return this.repository.findByEmpresaIdAndHabilitadoTrue(categoriaId);
     }
 
     @Transactional

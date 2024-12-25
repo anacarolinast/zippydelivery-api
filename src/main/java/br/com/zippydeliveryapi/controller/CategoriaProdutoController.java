@@ -76,7 +76,7 @@ public class CategoriaProdutoController {
     }
 
     @GetMapping("/empresa/{id}")
-    public List<CategoriaProduto> verCategoriasProdutosPorEmpresa(@PathVariable("id") Long empresaId) {
+    public List<CategoriaProduto> findCategoriasProdutosByEmpresa(@PathVariable("id") Long empresaId) {
         return this.categoriaProdutoService.findByEmpresaId(empresaId);
     }
 }
