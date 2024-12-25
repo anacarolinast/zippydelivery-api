@@ -60,13 +60,13 @@ public class EmpresaService {
     @Transactional
     private Endereco saveEndereco(EmpresaRequest request) {
         Endereco endereco = Endereco.builder()
-                .logradouro(request.getEndereco().getLogradouro())
-                .numero(request.getEndereco().getNumero())
-                .bairro(request.getEndereco().getBairro())
-                .cidade(request.getEndereco().getCidade())
-                .estado(request.getEndereco().getEstado())
-                .cep(request.getEndereco().getCep())
-                .complemento(request.getEndereco().getComplemento())
+                .logradouro(StringUtils.hasText(request.getEndereco().getLogradouro()) ? request.getEndereco().getLogradouro() : "")
+                .numero(StringUtils.hasText(request.getEndereco().getNumero()) ? request.getEndereco().getNumero() : "")
+                .bairro(StringUtils.hasText(request.getEndereco().getBairro()) ? request.getEndereco().getBairro() : "")
+                .cidade(StringUtils.hasText(request.getEndereco().getCidade()) ? request.getEndereco().getCidade() : "")
+                .estado(StringUtils.hasText(request.getEndereco().getEstado()) ? request.getEndereco().getEstado() : "")
+                .cep(StringUtils.hasText(request.getEndereco().getCep()) ? request.getEndereco().getCep() : "")
+                .complemento(StringUtils.hasText(request.getEndereco().getComplemento()) ? request.getEndereco().getComplemento() : "")
                 .build();
         return this.enderecoRepository.save(endereco);
     }

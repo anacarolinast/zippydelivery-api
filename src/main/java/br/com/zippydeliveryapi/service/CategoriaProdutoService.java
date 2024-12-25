@@ -35,7 +35,7 @@ public class CategoriaProdutoService {
     }
 
     public List<CategoriaProduto> findByEmpresaId(Long id) {
-        return this.repository.findByEmpresaId(id);
+        return this.repository.findByEmpresaIdAndHabilitadoTrue(id);
     }
 
     @Transactional
