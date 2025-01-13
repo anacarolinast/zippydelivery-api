@@ -1,5 +1,8 @@
 package br.com.zippydeliveryapi.model;
 
+import br.com.zippydeliveryapi.model.dto.request.EmpresaRequest;
+import br.com.zippydeliveryapi.model.dto.request.EntregadorRequest;
+import br.com.zippydeliveryapi.util.enums.StatusEnum;
 import org.hibernate.validator.constraints.br.CPF;
 
 import br.com.zippydeliveryapi.util.entity.EntidadeNegocio;
@@ -31,7 +34,6 @@ public class Entregador extends EntidadeNegocio {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @CPF
     private String cpf;
 
     @Email
@@ -50,4 +52,17 @@ public class Entregador extends EntidadeNegocio {
 
     private int status;
 
+    public static Entregador fromRequest(EntregadorRequest request) {
+        return Entregador.builder()
+                .nome(request.getNome())
+                .cpf(request.getCpf())
+                .email(request.getEmail())
+                .dataNascimento(request.getDataNascimento())
+                .telefone(request.getTelefone())
+                .veiculo(request.getVeiculo())
+                .placa(request.getPlaca())
+                .senha(request.getSenha())
+                .status(StatusEnum.PENDENTE.getCodigo())
+                .build();
+    }
 }

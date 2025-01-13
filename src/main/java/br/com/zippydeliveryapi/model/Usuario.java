@@ -29,6 +29,7 @@ public class Usuario extends EntidadeNegocio implements Serializable {
    public static final String ROLE_CLIENTE = "CLIENTE"; //Realizar compras no sistema
    public static final String ROLE_EMPRESA = "EMPRESA";  //READ, DELETE, WRITE, UPDATE.
    public static final String ROLE_ADMIN = "ADMIN";  //READ, DELETE, WRITE, UPDATE.
+   public static final String ROLE_ENTREGADOR = "ENTREGADOR";  //READ, DELETE, WRITE, UPDATE.
 
    @Column(nullable = false)
    private String username;

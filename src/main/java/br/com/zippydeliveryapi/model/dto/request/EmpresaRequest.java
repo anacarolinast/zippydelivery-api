@@ -21,11 +21,9 @@ public class EmpresaRequest {
     @Length(max = 500, message = "O Nome deverá ter no máximo {max} caracteres")
     private String nome;
 
-    @NotBlank(message = "O CNPJ é de preenchimento obrigatório")
     @Length(max = 20, message = "CNPJ out of range, too long")
     private String cnpj;
 
-    @NotBlank(message = "O Email é de preenchimento obrigatório")
     @Email
     private String email;
 

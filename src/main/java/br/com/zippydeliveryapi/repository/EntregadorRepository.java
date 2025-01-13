@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
 
-    public Entregador findByUsuario(Optional<Usuario> usuario);
+    Entregador findByUsuario(Optional<Usuario> usuario);
 
+    Entregador findByIdAndHabilitadoTrue(Long id);
 }

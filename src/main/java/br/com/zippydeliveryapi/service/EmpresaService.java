@@ -101,6 +101,10 @@ public class EmpresaService {
             empresa.setEmail(request.getEmail());
             empresa.getUsuario().setUsername(request.getEmail());
         }
+        if(StringUtils.hasText(request.getSenha()) && !request.getSenha().equals(empresa.getSenha())){
+            empresa.setSenha(request.getSenha());
+            empresa.getUsuario().setPassword(request.getSenha());
+        }
         empresa.setCategoria(categoriaEmpresa);
         empresa.setEndereco(this.saveEndereco(request));
         empresa.setNome(StringUtils.hasText(request.getNome()) ? request.getNome() : empresa.getNome());
