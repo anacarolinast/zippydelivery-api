@@ -78,12 +78,20 @@ public class ClienteService {
     @Transactional
     public void update(Long id, ClienteRequest request) {
         Cliente cliente = this.findById(id);
-        if(StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(cliente.getEmail())){
+        
+        if (StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(cliente.getEmail())) {
             cliente.setEmail(request.getEmail());
             cliente.getUsuario().setUsername(request.getEmail());
         }
+        
         cliente.setNome(request.getNome());
-        cliente.setSenha(request.getSenha());
+        
+        if (StringUtils.hasText(request.getSenha())) {
+            String senhaCodificada = this.passwordEncoder.encode(request.getSenha());
+            cliente.setSenha(senhaCodificada);
+            cliente.getUsuario().setPassword(senhaCodificada);
+        }
+    
         this.repository.save(cliente);
     }
 
