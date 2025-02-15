@@ -32,3 +32,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+catalina.policy
+catalina.properties
+context.xml
+jaspic-providers.xml
+jaspic-providers.xsd
+logging.properties
+server.xml
+tomcat-users.xml
+tomcat-users.xsd
+web.xml
