@@ -105,6 +105,9 @@ public class EmpresaService {
             empresa.setSenha(request.getSenha());
             empresa.getUsuario().setPassword(request.getSenha());
         }
+        if(StringUtils.hasText(request.getCnpj()) && !request.getCnpj().equals(empresa.getCnpj())) {
+            empresa.setCnpj(request.getCnpj());
+        }
         empresa.setCategoria(categoriaEmpresa);
         empresa.setEndereco(this.saveEndereco(request));
         empresa.setNome(StringUtils.hasText(request.getNome()) ? request.getNome() : empresa.getNome());

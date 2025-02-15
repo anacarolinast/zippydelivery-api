@@ -22,39 +22,40 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClienteRequest {
 
-   @NotBlank(message = "O Nome é de preenchimento obrigatório")
-   @Length(max = 100, message = "O Nome deverá ter no máximo {max} caracteres")
-   private String nome;
+    @NotBlank(message = "O Nome é de preenchimento obrigatório")
+    @Length(max = 100, message = "O Nome deverá ter no máximo {max} caracteres")
+    private String nome;
 
-   @NotBlank(message = "O CPF é de preenchimento obrigatório")
-   @CPF(message = "O CPF informado é inválido")
-   private String cpf;
+    @NotBlank(message = "O CPF é de preenchimento obrigatório")
+    @CPF(message = "O CPF informado é inválido")
+    private String cpf;
 
-   @NotBlank(message = "O Email é de preenchimento obrigatório")
-   @Email(message = "O Email informado é inválido")
-   private String email;
+    @NotBlank(message = "O Email é de preenchimento obrigatório")
+    @Email(message = "O Email informado é inválido")
+    private String email;
 
-   @NotBlank(message = "A senha é de preenchimento obrigatório")
-   private String senha;
+    @NotBlank(message = "A senha é de preenchimento obrigatório")
+    private String senha;
 
-   private List<Long> enderecosID;
+    private List<Long> enderecosID;
 
-   public Cliente build() {
-      return Cliente.builder()
-              .nome(nome)
-              .email(email)
-              .senha(senha)
-              .cpf(cpf)
-              .build();
-   }
+    public Cliente build() {
+        return Cliente.builder()
+                .nome(nome)
+                .email(email)
+                .senha(senha)
+                .cpf(cpf)
+                .build();
+    }
 
     public static ClienteRequest fromEntity(Cliente cliente) {
         ClienteRequest request = new ClienteRequest();
         request.setNome(cliente.getNome());
         request.setCpf(cliente.getCpf());
         request.setEmail(cliente.getEmail());
-        request.setSenha(cliente.getSenha());
 
+        // Removendo a linha que copia a senha
+        // request.setSenha(cliente.getSenha());
         if (cliente.getEnderecos() != null) {
             List<Long> enderecosIds = cliente.getEnderecos().stream()
                     .map(Endereco::getId)

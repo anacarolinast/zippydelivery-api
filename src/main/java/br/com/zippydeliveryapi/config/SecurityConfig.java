@@ -78,11 +78,13 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.PUT, "/api/produto/*").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/produto/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/produto").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/produto/*").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/categoria-produto").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/categoria-produto/*").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/categoria-produto/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categoria-produto").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categoria-produto/*").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/categoria-empresa").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/categoria-empresa/*").permitAll()
@@ -93,11 +95,18 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.PUT, "/api/pedido/*").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/pedido/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/pedido").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pedido/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/pedido/empresa/*").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/entregador").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/entregador/*").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/entregador/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/entregador").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/cupom").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/cupom/*").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/cupom/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/cupom").permitAll()
 
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
