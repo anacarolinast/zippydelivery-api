@@ -35,7 +35,6 @@ public class Endereco extends EntidadeNegocio implements Serializable {
 
     private String descricao;
 
-    @Column(nullable = true)
     private boolean padraoParaEntrega;
 
     public static Endereco fromRequest(EnderecoRequest request) {
@@ -47,7 +46,6 @@ public class Endereco extends EntidadeNegocio implements Serializable {
                 .estado(request.getEstado())
                 .cep(request.getCep())
                 .complemento(request.getComplemento())
-                .padraoParaEntrega(Boolean.FALSE)
                 .descricao(request.getDescricao())
                 .build();
     }
