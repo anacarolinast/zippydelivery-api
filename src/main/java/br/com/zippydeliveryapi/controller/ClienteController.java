@@ -90,4 +90,8 @@ public class ClienteController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{clienteId}/endereco/default")
+    public Endereco findDefaultAddress(@PathVariable("clienteId") Long id) {
+        return this.clienteService.findDefaultAddress(id);
+    }
 }

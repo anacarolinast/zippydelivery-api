@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import br.com.zippydeliveryapi.model.Endereco;
-import br.com.zippydeliveryapi.model.Pedido;
 import br.com.zippydeliveryapi.model.dto.request.EnderecoRequest;
 import br.com.zippydeliveryapi.repository.EnderecoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,24 +167,24 @@ public class ClienteService {
     public void updateAddress(Long id, Long enderecoId, EnderecoRequest request) {
         Cliente cliente = this.findById(id);
         Endereco endereco = this.findAddressById(enderecoId);
-        endereco.setLogradouro(request.getLogradouro());
-        endereco.setNumero(request.getNumero());
-        endereco.setBairro(request.getBairro());
-        endereco.setCidade(request.getCidade());
-        endereco.setEstado(request.getEstado());
-        endereco.setCep(request.getCep());
-        endereco.setComplemento(request.getComplemento());
+        endereco.setLogradouro(request.getLogradouro() == null ? endereco.getLogradouro() : request.getLogradouro());
+        endereco.setNumero(request.getNumero() == null ? endereco.getNumero() : request.getNumero());
+        endereco.setBairro(request.getBairro() == null ? endereco.getBairro() : request.getBairro());
+        endereco.setCidade(request.getCidade() == null ? endereco.getCidade() : request.getCidade());
+        endereco.setEstado(request.getEstado() == null ? endereco.getEstado() : request.getEstado());
+        endereco.setCep(request.getCep() == null ? endereco.getCep() : request.getCep());
+        endereco.setComplemento(request.getComplemento() == null ? endereco.getComplemento() : request.getComplemento());
         this.enderecoRepository.save(endereco);
 
         for (Endereco e : cliente.getEnderecos()) {
             if (e.getId().equals(enderecoId)) {
-                e.setLogradouro(request.getLogradouro());
-                e.setNumero(request.getNumero());
-                e.setBairro(request.getBairro());
-                e.setCidade(request.getCidade());
-                e.setEstado(request.getEstado());
-                e.setCep(request.getCep());
-                e.setComplemento(request.getComplemento());
+                e.setLogradouro(request.getLogradouro() == null ? e.getLogradouro() : request.getLogradouro());
+                e.setNumero(request.getNumero() == null ? e.getNumero() : request.getNumero());
+                e.setBairro(request.getBairro() == null ? e.getBairro() : request.getBairro());
+                e.setCidade(request.getCidade() == null ? e.getCidade() : request.getCidade());
+                e.setEstado(request.getEstado() == null ? e.getEstado() : request.getEstado());
+                e.setCep(request.getCep() == null ? e.getCep() : request.getCep());
+                e.setComplemento(request.getComplemento() == null ? e.getComplemento() : request.getComplemento());
                 break;
             }
         }
@@ -199,18 +197,27 @@ public class ClienteService {
         Endereco enderecoParaMarcar = this.findAddressById(enderecoId);
 
         List<Endereco> listaEnderecos = cliente.getEnderecos();
-        listaEnderecos.forEach(endereco -> {
-            if (endereco.isPadraoParaEntrega()) {
-                if (!endereco.equals(enderecoParaMarcar)) {
-                    endereco.setPadraoParaEntrega(Boolean.FALSE);
-                }
+        cliente.getEnderecos().forEach(endereco -> {
+            if (endereco.getId().equals(enderecoParaMarcar.getId())) {
+                endereco.setPadraoParaEntrega(Boolean.TRUE);
+            } else {
+                endereco.setPadraoParaEntrega(Boolean.FALSE);
             }
+            this.enderecoRepository.save(endereco);
         });
-        if (!enderecoParaMarcar.isPadraoParaEntrega()) {
-            enderecoParaMarcar.setPadraoParaEntrega(Boolean.TRUE);
-        }
         cliente.setEnderecos(listaEnderecos);
-
         this.repository.save(cliente);
+    }
+
+    public Endereco findDefaultAddress(Long id) {
+        Cliente cliente = this.findById(id);
+        List<Endereco> listaEnderecos = cliente.getEnderecos();
+        for (Endereco endereco : listaEnderecos) {
+            Endereco e = this.enderecoRepository.findById(endereco.getId()).get();
+            if (e.isPadraoParaEntrega()) {
+                return e;
+            }
+        }
+        return null;
     }
 }

@@ -108,10 +108,11 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.DELETE, "/api/cupom/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cupom").permitAll()
 
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        //.requestMatchers("/api/**").authenticated()
+                        //.anyRequest().authenticated()
+                        .anyRequest().permitAll()
+                );
+                //.addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
